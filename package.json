@@ -1,0 +1,15 @@
+{
+  "name": "frag-server",
+  "version": "0.0.0",
+  "description": "Image fragment server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "author": "Stepan Stolyarov <stepan.stolyarov@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "dreamopt": "~0.8.0"
+  }
+}
