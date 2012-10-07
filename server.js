@@ -84,6 +84,7 @@ var server = http.createServer(function (req, res) {
 
   var result = {
     image_id:    image.image_id,
+    image_name:  image.image_name,
     fragment_id: fragment.fragment_id,
     offset:      fragment.offset,
     total_size:  image.total_size,
