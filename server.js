@@ -61,7 +61,6 @@ var images = [];
     });
     cuts.push(0, img.length - 1);
     cuts.sort(function (a, b) { return a > b ? 1 : -1; });
-    console.log(cuts);
 
     var fragments = [];
     for (var i = 0; i < 100; i++) {
