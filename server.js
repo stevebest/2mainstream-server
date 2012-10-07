@@ -34,7 +34,6 @@ var images = [];
 (function () {
   // A source of repeatable pseudo-random numbers. We need to get chunks of
   // random size, but this size must be the same every time we start a server.
-  console.log('options', options);
   var rand = require('./rand')(options.seed);
 
   // Scan working directory and try finding some image files.
