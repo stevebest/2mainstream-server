@@ -78,8 +78,22 @@ var images = [];
 // --------------------
 //
 var server = http.createServer(function (req, res) {
+  if (/^\/endpoint[1-5](\?.*)?$/.test(req.url)) {
+    return sendImageFragment(req, res);
+  }
+  res.writeHead(404, { 'Content-Type': 'text/plain' });
+  res.end('Not Found');
+});
+
+//
+// Actually send some useful stuff
+//
+function sendImageFragment(req, res) {
+  var endpoint = req.url.match(/\/endpoint([1-5])/)[1];
+
+  // Pick a random image and fragment
   var image = images[Math.floor(Math.random() * images.length)];
-  var fragment = image.fragments[Math.floor(Math.random() * 100)];
+  var fragment = image.fragments[(endpoint-1) * 20 + Math.floor(Math.random() * 20)];
 
   var result = {
     image_id:    image.image_id,
@@ -91,7 +105,7 @@ var server = http.createServer(function (req, res) {
   };
   res.writeHead(200, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify(result));
-});
+}
 
 server.listen(options.port, options.address);
 console.log('Server running at http://%s:%d', options.address || 'localhost', options.port);
