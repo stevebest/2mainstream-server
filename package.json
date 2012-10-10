@@ -1,12 +1,12 @@
 {
-  "name": "frag-server",
+  "name": "2mainstream-server",
   "version": "0.0.0",
   "description": "Image fragment server",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": "git://github.com/stevebest/frag-server.git",
+  "repository": "git://github.com/stevebest/2mainstream-server.git",
   "author": "Stepan Stolyarov <stepan.stolyarov@gmail.com>",
   "license": "MIT",
   "dependencies": {
