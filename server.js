@@ -21,6 +21,7 @@ var options = require('dreamopt')([
 //
 var http = require('http');
 var fs   = require('fs');
+var util = require('util');
 var _    = require('underscore');
 
 //
@@ -95,16 +96,30 @@ function sendImageFragment(req, res) {
   var image = images[Math.floor(Math.random() * images.length)];
   var fragment = image.fragments[(endpoint-1) * 20 + Math.floor(Math.random() * 20)];
 
-  var result = {
-    image_id:    image.image_id,
-    image_name:  image.image_name,
-    fragment_id: fragment.fragment_id,
-    offset:      fragment.offset,
-    total_size:  image.total_size,
-    content:     fragment.content
-  };
   res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(result));
+
+  // Respond in chunks so that a client has a chance to discard duplicate
+  // fragments early.
+  res.write(util.format('{"image_id":%d,"fragment_id":%d,',
+    image.image_id, fragment.fragment_id));
+  res.write(util.format('"image_name":"%s","offset":%d,"total_size":%d,',
+    image.image_name, fragment.offset, image.total_size));
+
+  res.write('"content":"');
+  spoonFeed(fragment.content, function () {
+    res.end('"}');
+  });
+
+  function spoonFeed(text, done) {
+    var chunk = text.substr(0, 1024);
+    if (chunk.length === 0) {
+      return done();
+    }
+    res.write(chunk);
+    setTimeout(function () {
+      spoonFeed(text.substr(1024), done);
+    }, 10);
+  }
 }
 
 server.listen(options.port, options.address);
