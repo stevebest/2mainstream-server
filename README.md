@@ -7,7 +7,7 @@ frag-server
 ---------
 
 ```
-$ git pull git://github.com/stevebest/frag-server.git
+$ git clone git://github.com/stevebest/frag-server.git
 $ cd frag-server && npm install
 ```
 
