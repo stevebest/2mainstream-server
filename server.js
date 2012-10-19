@@ -96,19 +96,23 @@ function sendImageFragment(req, res) {
   var image = images[Math.floor(Math.random() * images.length)];
   var fragment = image.fragments[(endpoint-1) * 20 + Math.floor(Math.random() * 20)];
 
-  res.writeHead(200, { 'Content-Type': 'application/json' });
+  respondNicely(image, fragment);
 
-  // Respond in chunks so that a client has a chance to discard duplicate
-  // fragments early.
-  res.write(util.format('{"image_id":%d,"fragment_id":%d,',
-    image.image_id, fragment.fragment_id));
-  res.write(util.format('"image_name":"%s","offset":%d,"total_size":%d,',
-    image.image_name, fragment.offset, image.total_size));
+  function respondNicely(image, fragment) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
 
-  res.write('"content":"');
-  spoonFeed(fragment.content, function () {
-    res.end('"}');
-  });
+    // Respond in chunks so that a client has a chance to discard duplicate
+    // fragments early.
+    res.write(util.format('{"image_id":%d,"fragment_id":%d,',
+      image.image_id, fragment.fragment_id));
+    res.write(util.format('"image_name":"%s","offset":%d,"total_size":%d,',
+      image.image_name, fragment.offset, image.total_size));
+
+    res.write('"content":"');
+    spoonFeed(fragment.content, function () {
+      res.end('"}');
+    });
+  }
 
   function spoonFeed(text, done, chunkSize, throttleMs) {
     chunkSize = chunkSize || 1024;
