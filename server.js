@@ -96,17 +96,56 @@ function sendImageFragment(req, res) {
   var image = images[Math.floor(Math.random() * images.length)];
   var fragment = image.fragments[(endpoint-1) * 20 + Math.floor(Math.random() * 20)];
 
-  if (Math.random() < 0.80) {
-    respondNicely(image, fragment);
+  if (Math.random() < 0.60) {
+    console.log('200 chunked');
+    respond200(sendChunked, image, fragment);
+  } else if (Math.random() < 0.60) {
+    console.log('200 whole');
+    respond200(sendWhole, image, fragment);
+  } else if (Math.random() < 0.60) {
+    console.log('200 broken');
+    respond200(sendBroken, image, fragment);
+  } else if (Math.random() < 0.60) {
+    console.log('503');
+    respond503();
   } else {
-    respondBadly();
+    console.log('timeout');
+    // just do nothing and hope client will timeout
   }
 
-  function respondNicely(image, fragment) {
+  function respond200(sendBody, image, fragment) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
+    sendBody(image, fragment);
+  }
 
-    // Respond in chunks so that a client has a chance to discard duplicate
-    // fragments early.
+  function respond503(sendBody) {
+    res.writeHead(503, { 'Content-Type': 'text/plain' });
+    if (typeof sendBody === 'function') {
+      sendBody();
+    } else {
+      res.end('503 Service Unavailable');
+    }
+  }
+
+  function formResponseObject(image, fragment) {
+    return {
+      image_id: image.image_id,
+      fragment: fragment.fragment_id,
+      image_name: image.image_name,
+      offset: fragment.offset,
+      total_size: image.total_size,
+      content: fragment.content
+    };
+  }
+
+  // Send whole image in one go
+  function sendWhole(image, fragment) {
+    res.end(JSON.stringify(formResponseObject(image, fragment)));
+  }
+
+  // Send body in chunks so that a client has a chance to discard duplicate
+  // fragments early.
+  function sendChunked(image, fragment) {
     res.write(util.format('{"image_id":%d,"fragment_id":%d,',
       image.image_id, fragment.fragment_id));
     res.write(util.format('"image_name":"%s","offset":%d,"total_size":%d,',
@@ -118,9 +157,13 @@ function sendImageFragment(req, res) {
     });
   }
 
-  function respondBadly() {
-    res.writeHead(503, { 'Content-Type': 'text/plain' });
-    res.end('503 Service Unavailable');
+  // Send body in chunks slowly and possibly die in the process
+  function sendBroken(image, fragment) {
+    var body = JSON.stringify(formResponseObject(image, fragment));
+    body = body.substr(0, body.length * 2 * Math.random());
+    spoonFeed(body, function () {
+      res.end();
+    }, Math.floor(Math.random() * 1024), Math.floor() * 100 + 10);
   }
 
   function spoonFeed(text, done, chunkSize, throttleMs) {
