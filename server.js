@@ -96,7 +96,11 @@ function sendImageFragment(req, res) {
   var image = images[Math.floor(Math.random() * images.length)];
   var fragment = image.fragments[(endpoint-1) * 20 + Math.floor(Math.random() * 20)];
 
-  respondNicely(image, fragment);
+  if (Math.random() < 0.80) {
+    respondNicely(image, fragment);
+  } else {
+    respondBadly();
+  }
 
   function respondNicely(image, fragment) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -112,6 +116,11 @@ function sendImageFragment(req, res) {
     spoonFeed(fragment.content, function () {
       res.end('"}');
     });
+  }
+
+  function respondBadly() {
+    res.writeHead(503, { 'Content-Type': 'text/plain' });
+    res.end('503 Service Unavailable');
   }
 
   function spoonFeed(text, done, chunkSize, throttleMs) {
