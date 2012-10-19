@@ -110,15 +110,17 @@ function sendImageFragment(req, res) {
     res.end('"}');
   });
 
-  function spoonFeed(text, done) {
-    var chunk = text.substr(0, 1024);
+  function spoonFeed(text, done, chunkSize, throttleMs) {
+    chunkSize = chunkSize || 1024;
+    throttleMs = throttleMs || 10;
+    var chunk = text.substr(0, chunkSize);
     if (chunk.length === 0) {
       return done();
     }
     res.write(chunk);
     setTimeout(function () {
-      spoonFeed(text.substr(1024), done);
-    }, 10);
+      spoonFeed(text.substr(chunkSize), done);
+    }, throttleMs);
   }
 }
 
